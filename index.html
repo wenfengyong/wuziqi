@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>五子棋</h1>
+        </header>
+        
+        <div class="game-container">
+            <div class="sidebar left">
+                <div class="panel">
+                    <h3>游戏模式</h3>
+                    <div class="mode-buttons">
+                        <button id="singlePlayerBtn" class="mode-btn active">单人模式</button>
+                        <button id="localMultiBtn" class="mode-btn">本地双人</button>
+                        <button id="lanMultiBtn" class="mode-btn">局域网对战</button>
+                    </div>
+                </div>
+                
+                <div class="panel" id="aiSettings">
+                    <h3>AI难度</h3>
+                    <div class="difficulty-buttons">
+                        <button data-difficulty="easy" class="diff-btn">简单</button>
+                        <button data-difficulty="medium" class="diff-btn active">中等</button>
+                        <button data-difficulty="hard" class="diff-btn">困难</button>
+                    </div>
+                </div>
+
+                <div class="panel hidden" id="lanSettings">
+                    <h3>局域网对战</h3>
+                    <div class="lan-controls">
+                        <div class="server-status">
+                            <span>服务器状态: </span>
+                            <span id="serverStatus" class="status-disconnected">未连接</span>
+                        </div>
+                        
+                        <div id="connectPanel">
+                            <input type="text" id="serverUrl" placeholder="服务器地址 (如: http://192.168.1.100:3000)" value="">
+                            <button id="connectBtn">连接服务器</button>
+                        </div>
+                        
+                        <div id="roomPanel" class="hidden">
+                            <div class="room-actions">
+                                <button id="createRoomBtn">创建房间</button>
+                                <button id="joinRoomBtn">加入房间</button>
+                            </div>
+                            
+                            <div id="createRoomPanel" class="hidden">
+                                <p class="room-code-display">房间码: <span id="roomCode"></span></p>
+                                <p class="room-hint">将房间码告诉对手，等待加入...</p>
+                                <p class="room-status-text">状态: <span id="roomStatus">等待对手</span></p>
+                            </div>
+                            
+                            <div id="joinRoomPanel" class="hidden">
+                                <input type="text" id="roomCodeInput" placeholder="输入4位数字房间码" maxlength="4">
+                                <button id="confirmJoinBtn">加入</button>
+                            </div>
+                            
+                            <div id="lanGamePanel" class="hidden">
+                                <div class="lan-game-info">
+                                    <p>你的身份: <span id="myRole" class="role-display">黑方</span></p>
+                                    <p>对手身份: <span id="opponentRole" class="role-display">白方</span></p>
+                                </div>
+                                <button id="swapRoleBtn" class="swap-btn">请求交换身份</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>棋子样式</h3>
+                    <div class="piece-styles">
+                        <div class="piece-style black-piece active" data-style="classic">
+                            <span class="piece-preview classic black"></span>
+                            <span>经典</span>
+                        </div>
+                        <div class="piece-style black-piece" data-style="modern">
+                            <span class="piece-preview modern black"></span>
+                            <span>现代</span>
+                        </div>
+                        <div class="piece-style black-piece" data-style="cute">
+                            <span class="piece-preview cute black"></span>
+                            <span>可爱</span>
+                        </div>
+                        <div class="piece-style black-piece" data-style="neon">
+                            <span class="piece-preview neon black"></span>
+                            <span>霓虹</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="board-area">
+                <div class="game-info">
+                    <div class="player-info" id="blackPlayer">
+                        <span class="player-piece black"></span>
+                        <span class="player-name">黑方</span>
+                        <span class="player-time" id="blackTime">00:00</span>
+                    </div>
+                    <div class="turn-indicator" id="turnIndicator">黑方先行</div>
+                    <div class="player-info" id="whitePlayer">
+                        <span class="player-piece white"></span>
+                        <span class="player-name">白方</span>
+                        <span class="player-time" id="whiteTime">00:00</span>
+                    </div>
+                </div>
+                
+                <div class="board-wrapper">
+                    <canvas id="gameBoard"></canvas>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="undoBtn" class="control-btn">悔棋</button>
+                    <button id="restartBtn" class="control-btn">重新开始</button>
+                    <button id="pauseBtn" class="control-btn">暂停</button>
+                </div>
+            </div>
+            
+            <div class="sidebar right">
+                <div class="panel">
+                    <h3>游戏记录</h3>
+                    <div class="move-history" id="moveHistory">
+                        <p class="no-moves">暂无落子记录</p>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>游戏统计</h3>
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">总局数</span>
+                            <span class="stat-value" id="totalGames">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">黑方胜</span>
+                            <span class="stat-value" id="blackWins">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">白方胜</span>
+                            <span class="stat-value" id="whiteWins">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameOverModal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="gameOverTitle">游戏结束</h2>
+                <p id="gameOverMessage"></p>
+                <div class="modal-buttons">
+                    <button id="playAgainBtn">再来一局</button>
+                    <button id="closeModalBtn">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>
