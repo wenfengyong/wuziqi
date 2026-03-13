@@ -1,0 +1,153 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+.pureModeBtn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pureModeBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.gameContainer {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 20px;
+  justify-content: center;
+  align-items: start;
+}
+
+.gameContainer.pureMode {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.leftSidebar,
+.rightSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.boardArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.pureControls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pureControlBtn {
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pureControlBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.pureControlBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.boardArea.pureMode {
+  padding-top: 0;
+}
+
+.boardWrapper {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  transition: background 0.5s ease;
+}
+
+@media (max-width: 1200px) {
+  .gameContainer {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .leftSidebar,
+  .rightSidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .leftSidebar > *,
+  .rightSidebar > * {
+    flex: 1;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .boardWrapper {
+    padding: 10px;
+  }
+  
+  .leftSidebar,
+  .rightSidebar {
+    flex-direction: column;
+  }
+  
+  .leftSidebar > *,
+  .rightSidebar > * {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+}

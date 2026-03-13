@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.playerInfo.active {
+  background: #FFD700;
+}
+
+.piece {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+
+.piece.black {
+  background: radial-gradient(circle at 30% 30%, #4a4a4a, #1a1a1a);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.piece.white {
+  background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+}
+
+.name {
+  font-weight: bold;
+  color: #333;
+}
+
+.time {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #8B4513;
+}
+
+.turnIndicator {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #8B4513;
+  padding: 8px 16px;
+  background: #F5DEB3;
+  border-radius: 20px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .turnIndicator {
+    order: -1;
+  }
+}
