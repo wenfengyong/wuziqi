@@ -35,6 +35,10 @@ const pieceStyleLabels: Record<PieceStyle, string> = {
   modern: '现代',
   cute: '可爱',
   neon: '霓虹',
+  wood: '木纹',
+  metal: '金属',
+  glass: '玻璃',
+  gradient: '渐变',
 };
 
 function ControlPanel({
