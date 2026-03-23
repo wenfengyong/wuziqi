@@ -4,9 +4,11 @@ export type GameMode = 'single' | 'local';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export type PieceStyle = 'classic' | 'modern' | 'cute' | 'neon';
+export type PieceStyle = 'classic' | 'modern' | 'cute' | 'neon' | 'wood' | 'metal' | 'glass' | 'gradient';
 
 export type BoardThemeId = 'classic' | 'modern' | 'stone' | 'bamboo' | 'neon';
+
+export type LineStyle = 'solid' | 'dashed' | 'dotted';
 
 export interface Position {
   row: number;
@@ -49,6 +51,9 @@ export interface GameState {
   stats: GameStats;
   pieceStyle: PieceStyle;
   boardTheme: BoardThemeId;
+  lineStyle: LineStyle;
+  lineColor: string;
+  fixedBoard: boolean;
   hostIsBlack: boolean;
 }
 

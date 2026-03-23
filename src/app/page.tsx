@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useGame } from '@/context/GameContext';
-import { Difficulty, PieceStyle, BoardThemeId } from '@/types/game';
+import { Difficulty, PieceStyle, BoardThemeId, LineStyle } from '@/types/game';
 import Board from '@/components/Board';
 import ControlPanel from '@/components/ControlPanel';
 import GameInfo from '@/components/GameInfo';
@@ -28,10 +28,16 @@ export default function GamePage() {
     stats,
     pieceStyle,
     boardTheme,
+    lineStyle,
+    lineColor,
+    fixedBoard,
     setMode,
     setDifficulty,
     setPieceStyle,
     setBoardTheme,
+    setLineStyle,
+    setLineColor,
+    setFixedBoard,
     handleMove,
     undo,
     restart,
@@ -47,6 +53,8 @@ export default function GamePage() {
   const canUndo = moveHistory.length > 0;
 
   useEffect(() => {
+    if (fixedBoard) return;
+
     const handleResize = () => {
       const maxWidth = Math.min(window.innerWidth - 80, 560);
       const newCellSize = Math.floor(maxWidth / 15);
@@ -56,7 +64,7 @@ export default function GamePage() {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [fixedBoard]);
 
   useEffect(() => {
     if (isGameOver && !showModal) {
@@ -91,6 +99,27 @@ export default function GamePage() {
       setBoardTheme(theme);
     },
     [setBoardTheme]
+  );
+
+  const handleLineStyleChange = useCallback(
+    (style: LineStyle) => {
+      setLineStyle(style);
+    },
+    [setLineStyle]
+  );
+
+  const handleLineColorChange = useCallback(
+    (color: string) => {
+      setLineColor(color);
+    },
+    [setLineColor]
+  );
+
+  const handleFixedBoardChange = useCallback(
+    (fixed: boolean) => {
+      setFixedBoard(fixed);
+    },
+    [setFixedBoard]
   );
 
   const handleCellClick = useCallback(
@@ -150,7 +179,7 @@ export default function GamePage() {
               <button
                 className={styles.pureControlBtn}
                 onClick={undo}
-                disabled={!canUndo || isGameOver}
+                disabled={!canUndo}
               >
                 悔棋
               </button>
@@ -188,6 +217,9 @@ export default function GamePage() {
               winLine={winLine}
               pieceStyle={pieceStyle}
               boardTheme={boardTheme}
+              lineStyle={lineStyle}
+              lineColor={lineColor}
+              fixedBoard={fixedBoard}
               onCellClick={handleCellClick}
               cellSize={cellSize}
             />
@@ -196,7 +228,18 @@ export default function GamePage() {
 
         {!pureMode && (
           <div className={styles.rightSidebar}>
-            <ThemeSelector currentTheme={boardTheme} onThemeChange={handleThemeChange} />
+            <ThemeSelector
+              currentTheme={boardTheme}
+              currentPieceStyle={pieceStyle}
+              lineStyle={lineStyle}
+              lineColor={lineColor}
+              fixedBoard={fixedBoard}
+              onThemeChange={handleThemeChange}
+              onPieceStyleChange={handlePieceStyleChange}
+              onLineStyleChange={handleLineStyleChange}
+              onLineColorChange={handleLineColorChange}
+              onFixedBoardChange={handleFixedBoardChange}
+            />
             <GameStats stats={stats} onReset={resetStats} />
           </div>
         )}

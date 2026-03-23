@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect, ReactNode, useRef } from 'react';
-import { Player, GameMode, Difficulty, PieceStyle, BoardThemeId, Position, Move, WinLine, GameState, GameStats } from '@/types/game';
+import { Player, GameMode, Difficulty, PieceStyle, BoardThemeId, Position, Move, WinLine, GameState, GameStats, LineStyle } from '@/types/game';
 import { createEmptyBoard, loadStats, saveStats, loadBoardTheme, saveBoardTheme, loadPieceStyle, savePieceStyle } from '@/lib/utils';
 import { checkWinAtPosition, getWinLine, isBoardFull } from '@/lib/gameRules';
 import { AI } from '@/lib/ai';
@@ -11,6 +11,9 @@ interface GameContextType extends GameState {
   setDifficulty: (difficulty: Difficulty) => void;
   setPieceStyle: (style: PieceStyle) => void;
   setBoardTheme: (theme: BoardThemeId) => void;
+  setLineStyle: (style: LineStyle) => void;
+  setLineColor: (color: string) => void;
+  setFixedBoard: (fixed: boolean) => void;
   handleMove: (row: number, col: number) => boolean;
   undo: () => void;
   restart: () => void;
@@ -34,6 +37,9 @@ const initialState: GameState = {
   stats: { totalGames: 0, blackWins: 0, whiteWins: 0 },
   pieceStyle: 'classic',
   boardTheme: 'classic',
+  lineStyle: 'solid',
+  lineColor: '#8B4513',
+  fixedBoard: false,
   hostIsBlack: true,
 };
 
@@ -42,6 +48,9 @@ type GameAction =
   | { type: 'SET_DIFFICULTY'; payload: Difficulty }
   | { type: 'SET_PIECE_STYLE'; payload: PieceStyle }
   | { type: 'SET_BOARD_THEME'; payload: BoardThemeId }
+  | { type: 'SET_LINE_STYLE'; payload: LineStyle }
+  | { type: 'SET_LINE_COLOR'; payload: string }
+  | { type: 'SET_FIXED_BOARD'; payload: boolean }
   | { type: 'MAKE_MOVE'; payload: { row: number; col: number; player: Player } }
   | { type: 'SWITCH_PLAYER' }
   | { type: 'END_GAME'; payload: { winner: Player; winLine: WinLine | null } }
@@ -69,6 +78,12 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, pieceStyle: action.payload };
     case 'SET_BOARD_THEME':
       return { ...state, boardTheme: action.payload };
+    case 'SET_LINE_STYLE':
+      return { ...state, lineStyle: action.payload };
+    case 'SET_LINE_COLOR':
+      return { ...state, lineColor: action.payload };
+    case 'SET_FIXED_BOARD':
+      return { ...state, fixedBoard: action.payload };
     case 'MAKE_MOVE': {
       const newBoard = state.board.map(row => [...row]);
       newBoard[action.payload.row][action.payload.col] = action.payload.player;
@@ -188,6 +203,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_BOARD_THEME', payload: theme });
   }, []);
 
+  const setLineStyle = useCallback((style: LineStyle) => {
+    dispatch({ type: 'SET_LINE_STYLE', payload: style });
+  }, []);
+
+  const setLineColor = useCallback((color: string) => {
+    dispatch({ type: 'SET_LINE_COLOR', payload: color });
+  }, []);
+
+  const setFixedBoard = useCallback((fixed: boolean) => {
+    dispatch({ type: 'SET_FIXED_BOARD', payload: fixed });
+  }, []);
+
   const handleMove = useCallback((row: number, col: number): boolean => {
     if (state.isGameOver || state.isPaused) return false;
     if (state.board[row][col] !== 0) return false;
@@ -244,7 +271,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   const undo = useCallback(() => {
-    if (state.isGameOver || state.moveHistory.length === 0) return;
+    if (state.moveHistory.length === 0) return;
 
     const newBoard = state.board.map(row => [...row]);
     const lastMove = state.moveHistory[state.moveHistory.length - 1];
@@ -299,6 +326,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setDifficulty,
     setPieceStyle,
     setBoardTheme,
+    setLineStyle,
+    setLineColor,
+    setFixedBoard,
     handleMove,
     undo,
     restart,

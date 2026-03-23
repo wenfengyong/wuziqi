@@ -105,9 +105,9 @@ function ControlPanel({
         <h3 className={styles.title}>游戏控制</h3>
         <div className={styles.controlGrid}>
           <button
-            className={`${styles.controlBtn} ${!canUndo || isGameOver ? styles.disabled : ''}`}
+            className={`${styles.controlBtn} ${!canUndo ? styles.disabled : ''}`}
             onClick={onUndo}
-            disabled={!canUndo || isGameOver}
+            disabled={!canUndo}
           >
             悔棋
           </button>
