@@ -17,6 +17,11 @@ class Board {
             white: 'classic'
         };
         
+        this.boardStyle = 'classic';
+        this.lineStyle = 'solid';
+        this.lineColor = '#8B4513';
+        this.fixedSize = false;
+        
         this.init();
     }
     
@@ -55,6 +60,22 @@ class Board {
     }
     
     drawBackground() {
+        switch (this.boardStyle) {
+            case 'bamboo':
+                this.drawBambooBackground();
+                break;
+            case 'dark':
+                this.drawDarkBackground();
+                break;
+            case 'marble':
+                this.drawMarbleBackground();
+                break;
+            default:
+                this.drawClassicBackground();
+        }
+    }
+    
+    drawClassicBackground() {
         const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
         gradient.addColorStop(0, '#DEB887');
         gradient.addColorStop(1, '#D2B48C');
@@ -72,9 +93,96 @@ class Board {
         }
     }
     
-    drawGrid() {
-        this.ctx.strokeStyle = '#8B4513';
+    drawBambooBackground() {
+        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+        gradient.addColorStop(0, '#C5E1A5');
+        gradient.addColorStop(0.5, '#AED581');
+        gradient.addColorStop(1, '#9CCC65');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.strokeStyle = 'rgba(85, 139, 47, 0.15)';
+        this.ctx.lineWidth = 2;
+        for (let i = 0; i < this.canvas.height; i += 8) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, i);
+            this.ctx.lineTo(this.canvas.width, i);
+            this.ctx.stroke();
+        }
+        
+        this.ctx.strokeStyle = 'rgba(139, 195, 74, 0.2)';
         this.ctx.lineWidth = 1;
+        for (let i = 0; i < this.canvas.width; i += 12) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i, 0);
+            this.ctx.lineTo(i, this.canvas.height);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawDarkBackground() {
+        const gradient = this.ctx.createRadialGradient(
+            this.canvas.width / 2, this.canvas.height / 2, 0,
+            this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2
+        );
+        gradient.addColorStop(0, '#424242');
+        gradient.addColorStop(0.5, '#303030');
+        gradient.addColorStop(1, '#212121');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < this.canvas.width; i += 20) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(i, 0);
+            this.ctx.lineTo(i, this.canvas.height);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawMarbleBackground() {
+        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+        gradient.addColorStop(0, '#ECEFF1');
+        gradient.addColorStop(0.3, '#F5F5F5');
+        gradient.addColorStop(0.6, '#ECEFF1');
+        gradient.addColorStop(1, '#E0E0E0');
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.strokeStyle = 'rgba(158, 158, 158, 0.1)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < 15; i++) {
+            const x = Math.random() * this.canvas.width;
+            const y = Math.random() * this.canvas.height;
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            this.ctx.bezierCurveTo(
+                x + 50, y + 30,
+                x + 100, y - 30,
+                x + 150, y
+            );
+            this.ctx.stroke();
+        }
+    }
+    
+    drawGrid() {
+        this.ctx.strokeStyle = this.lineColor;
+        this.ctx.lineWidth = 1;
+        
+        switch (this.lineStyle) {
+            case 'dashed':
+                this.ctx.setLineDash([8, 4]);
+                break;
+            case 'dotted':
+                this.ctx.setLineDash([2, 4]);
+                break;
+            default:
+                this.ctx.setLineDash([]);
+        }
         
         for (let i = 0; i < this.gridSize; i++) {
             const pos = this.padding + i * this.cellSize;
@@ -89,11 +197,13 @@ class Board {
             this.ctx.lineTo(pos, this.canvas.height - this.padding);
             this.ctx.stroke();
         }
+        
+        this.ctx.setLineDash([]);
     }
     
     drawStarPoints() {
         const starPoints = this.getStarPoints();
-        this.ctx.fillStyle = '#8B4513';
+        this.ctx.fillStyle = this.lineColor;
         
         starPoints.forEach(point => {
             this.ctx.beginPath();
@@ -165,6 +275,18 @@ class Board {
             case 'neon':
                 this.drawNeonBlack(x, y, radius);
                 break;
+            case 'wood':
+                this.drawWoodBlack(x, y, radius);
+                break;
+            case 'metal':
+                this.drawMetalBlack(x, y, radius);
+                break;
+            case 'glass':
+                this.drawGlassBlack(x, y, radius);
+                break;
+            case 'gradient':
+                this.drawGradientBlack(x, y, radius);
+                break;
             default:
                 this.drawClassicBlack(x, y, radius);
         }
@@ -182,6 +304,18 @@ class Board {
                 break;
             case 'neon':
                 this.drawNeonWhite(x, y, radius);
+                break;
+            case 'wood':
+                this.drawWoodWhite(x, y, radius);
+                break;
+            case 'metal':
+                this.drawMetalWhite(x, y, radius);
+                break;
+            case 'glass':
+                this.drawGlassWhite(x, y, radius);
+                break;
+            case 'gradient':
+                this.drawGradientWhite(x, y, radius);
                 break;
             default:
                 this.drawClassicWhite(x, y, radius);
@@ -390,6 +524,238 @@ class Board {
         this.ctx.stroke();
     }
     
+    drawWoodBlack(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        this.ctx.shadowBlur = 5;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        const gradient = this.ctx.createRadialGradient(x - radius/3, y - radius/3, 0, x, y, radius);
+        gradient.addColorStop(0, '#5D4037');
+        gradient.addColorStop(0.5, '#3E2723');
+        gradient.addColorStop(1, '#1B0000');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'rgba(139, 90, 43, 0.3)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius - 3 - i * 4, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawWoodWhite(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.shadowBlur = 5;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        const gradient = this.ctx.createRadialGradient(x - radius/3, y - radius/3, 0, x, y, radius);
+        gradient.addColorStop(0, '#FFF8E1');
+        gradient.addColorStop(0.5, '#EFEBE9');
+        gradient.addColorStop(1, '#D7CCC8');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'rgba(161, 136, 127, 0.4)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, radius - 3 - i * 4, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawMetalBlack(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.shadowBlur = 8;
+        this.ctx.shadowOffsetX = 3;
+        this.ctx.shadowOffsetY = 3;
+        
+        const gradient = this.ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+        gradient.addColorStop(0, '#4a4a4a');
+        gradient.addColorStop(0.3, '#2a2a2a');
+        gradient.addColorStop(0.5, '#3a3a3a');
+        gradient.addColorStop(0.7, '#1a1a1a');
+        gradient.addColorStop(1, '#0a0a0a');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x - radius * 0.4, y - radius * 0.4, radius * 0.25, 0, Math.PI * 2);
+        const shineGradient = this.ctx.createRadialGradient(
+            x - radius * 0.4, y - radius * 0.4, 0,
+            x - radius * 0.4, y - radius * 0.4, radius * 0.25
+        );
+        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = shineGradient;
+        this.ctx.fill();
+    }
+    
+    drawMetalWhite(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        this.ctx.shadowBlur = 8;
+        this.ctx.shadowOffsetX = 3;
+        this.ctx.shadowOffsetY = 3;
+        
+        const gradient = this.ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(0.3, '#e0e0e0');
+        gradient.addColorStop(0.5, '#f0f0f0');
+        gradient.addColorStop(0.7, '#c0c0c0');
+        gradient.addColorStop(1, '#a0a0a0');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = '#888888';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x - radius * 0.4, y - radius * 0.4, radius * 0.3, 0, Math.PI * 2);
+        const shineGradient = this.ctx.createRadialGradient(
+            x - radius * 0.4, y - radius * 0.4, 0,
+            x - radius * 0.4, y - radius * 0.4, radius * 0.3
+        );
+        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = shineGradient;
+        this.ctx.fill();
+    }
+    
+    drawGlassBlack(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 4;
+        
+        const gradient = this.ctx.createRadialGradient(x - radius/3, y - radius/3, 0, x, y, radius);
+        gradient.addColorStop(0, 'rgba(80, 80, 80, 0.9)');
+        gradient.addColorStop(0.5, 'rgba(40, 40, 40, 0.85)');
+        gradient.addColorStop(1, 'rgba(20, 20, 20, 0.8)');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.beginPath();
+        this.ctx.ellipse(x - radius * 0.3, y - radius * 0.35, radius * 0.4, radius * 0.25, -Math.PI / 4, 0, Math.PI * 2);
+        const glassGradient = this.ctx.createRadialGradient(
+            x - radius * 0.3, y - radius * 0.35, 0,
+            x - radius * 0.3, y - radius * 0.35, radius * 0.4
+        );
+        glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+        glassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+        glassGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = glassGradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+    }
+    
+    drawGlassWhite(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 4;
+        
+        const gradient = this.ctx.createRadialGradient(x - radius/3, y - radius/3, 0, x, y, radius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+        gradient.addColorStop(0.5, 'rgba(245, 245, 245, 0.9)');
+        gradient.addColorStop(1, 'rgba(220, 220, 220, 0.85)');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'rgba(200, 200, 200, 0.6)';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.ellipse(x - radius * 0.3, y - radius * 0.35, radius * 0.45, radius * 0.3, -Math.PI / 4, 0, Math.PI * 2);
+        const glassGradient = this.ctx.createRadialGradient(
+            x - radius * 0.3, y - radius * 0.35, 0,
+            x - radius * 0.3, y - radius * 0.35, radius * 0.45
+        );
+        glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        glassGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)');
+        glassGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = glassGradient;
+        this.ctx.fill();
+    }
+    
+    drawGradientBlack(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        this.ctx.shadowBlur = 6;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        const gradient = this.ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+        gradient.addColorStop(0, '#1a237e');
+        gradient.addColorStop(0.25, '#4a148c');
+        gradient.addColorStop(0.5, '#880e4f');
+        gradient.addColorStop(0.75, '#b71c1c');
+        gradient.addColorStop(1, '#1a1a1a');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.fill();
+    }
+    
+    drawGradientWhite(x, y, radius) {
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        this.ctx.shadowBlur = 6;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        const gradient = this.ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+        gradient.addColorStop(0, '#e3f2fd');
+        gradient.addColorStop(0.25, '#f3e5f5');
+        gradient.addColorStop(0.5, '#fce4ec');
+        gradient.addColorStop(0.75, '#fff3e0');
+        gradient.addColorStop(1, '#e0e0e0');
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fill();
+        
+        this.ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x - radius * 0.3, y - radius * 0.3, radius * 0.25, 0, Math.PI * 2);
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.fill();
+    }
+    
     drawLastMoveHint() {
         if (!this.lastMove) return;
         
@@ -424,6 +790,29 @@ class Board {
     setPieceStyle(player, style) {
         this.pieceStyle[player === 1 ? 'black' : 'white'] = style;
         this.draw();
+    }
+    
+    setBoardStyle(style) {
+        this.boardStyle = style;
+        this.draw();
+    }
+    
+    setLineStyle(style) {
+        this.lineStyle = style;
+        this.draw();
+    }
+    
+    setLineColor(color) {
+        this.lineColor = color;
+        this.draw();
+    }
+    
+    setFixedSize(fixed) {
+        this.fixedSize = fixed;
+    }
+    
+    isFixedSize() {
+        return this.fixedSize;
     }
     
     getGridPosition(canvasX, canvasY) {

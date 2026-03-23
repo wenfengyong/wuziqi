@@ -2,6 +2,7 @@ class UI {
     constructor(game) {
         this.game = game;
         this.board = game.board;
+        this.gameOverModalShown = false;
         
         this.initElements();
         this.bindEvents();
@@ -40,7 +41,12 @@ class UI {
             opponentRole: document.getElementById('opponentRole'),
             pauseBtn: document.getElementById('pauseBtn'),
             undoBtn: document.getElementById('undoBtn'),
-            restartBtn: document.getElementById('restartBtn')
+            restartBtn: document.getElementById('restartBtn'),
+            pureMode: document.getElementById('pureMode'),
+            fixedBoard: document.getElementById('fixedBoard'),
+            lineStyle: document.getElementById('lineStyle'),
+            lineColor: document.getElementById('lineColor'),
+            pureModeExit: document.getElementById('pureModeExit')
         };
     }
     
@@ -60,15 +66,48 @@ class UI {
             el.addEventListener('click', (e) => this.handlePieceStyleClick(e));
         });
         
-        document.getElementById('undoBtn').addEventListener('click', () => this.game.undo());
+        document.querySelectorAll('.board-style').forEach(el => {
+            el.addEventListener('click', (e) => this.handleBoardStyleClick(e));
+        });
+        
+        this.elements.lineStyle.addEventListener('change', (e) => {
+            this.board.setLineStyle(e.target.value);
+        });
+        
+        this.elements.lineColor.addEventListener('input', (e) => {
+            this.board.setLineColor(e.target.value);
+        });
+        
+        this.elements.pureMode.addEventListener('change', (e) => {
+            this.togglePureMode(e.target.checked);
+        });
+        
+        this.elements.fixedBoard.addEventListener('change', (e) => {
+            this.board.setFixedSize(e.target.checked);
+        });
+        
+        this.elements.pureModeExit.addEventListener('click', () => {
+            this.exitPureMode();
+        });
+        
+        document.getElementById('undoBtn').addEventListener('click', () => {
+            if (this.game.undo()) {
+                this.gameOverModalShown = false;
+                this.hideModal();
+            }
+        });
         document.getElementById('restartBtn').addEventListener('click', () => this.game.restart());
         document.getElementById('pauseBtn').addEventListener('click', () => this.handlePause());
         
         document.getElementById('playAgainBtn').addEventListener('click', () => {
             this.hideModal();
+            this.gameOverModalShown = false;
             this.game.restart();
         });
-        document.getElementById('closeModalBtn').addEventListener('click', () => this.hideModal());
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            this.hideModal();
+            this.gameOverModalShown = false;
+        });
         
         document.getElementById('connectBtn').addEventListener('click', () => this.connectToServer());
         document.getElementById('createRoomBtn').addEventListener('click', () => this.createRoom());
@@ -126,6 +165,7 @@ class UI {
         this.game.setMode(mode);
         this.updateTurnIndicator();
         this.clearMoveHistory();
+        this.gameOverModalShown = false;
     }
     
     setDifficulty(difficulty) {
@@ -145,6 +185,57 @@ class UI {
         
         this.game.setPieceStyle(1, style);
         this.game.setPieceStyle(2, style);
+    }
+    
+    handleBoardStyleClick(e) {
+        const styleEl = e.currentTarget;
+        const style = styleEl.dataset.board;
+        
+        document.querySelectorAll('.board-style').forEach(el => {
+            el.classList.remove('active');
+        });
+        styleEl.classList.add('active');
+        
+        this.board.setBoardStyle(style);
+    }
+    
+    togglePureMode(enabled) {
+        const container = document.querySelector('.container');
+        if (enabled) {
+            container.classList.add('pure-mode');
+            this.elements.pureModeExit.classList.remove('hidden');
+            setTimeout(() => this.resizeBoard(), 50);
+        } else {
+            container.classList.remove('pure-mode');
+            this.elements.pureModeExit.classList.add('hidden');
+            setTimeout(() => this.resizeBoard(), 50);
+        }
+    }
+    
+    exitPureMode() {
+        this.elements.pureMode.checked = false;
+        this.togglePureMode(false);
+    }
+    
+    resizeBoard() {
+        if (this.board.isFixedSize()) {
+            return;
+        }
+        
+        const container = document.querySelector('.board-wrapper');
+        if (!container) return;
+        
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+        
+        const padding = this.board.padding * 2;
+        const availableSize = Math.min(containerWidth, containerHeight) - padding;
+        
+        const cellSize = Math.max(20, Math.floor(availableSize / 14));
+        
+        if (cellSize > 0 && Math.abs(this.board.cellSize - cellSize) > 2) {
+            this.board.resize(cellSize);
+        }
     }
     
     handlePause() {
@@ -311,6 +402,11 @@ class UI {
     }
     
     showGameOverModal(winner) {
+        if (this.gameOverModalShown) {
+            return;
+        }
+        this.gameOverModalShown = true;
+        
         let title, message;
         
         if (winner === 0) {
@@ -320,13 +416,14 @@ class UI {
             const winnerName = winner === 1 ? '黑方' : '白方';
             title = `${winnerName}获胜！`;
             
-            if (this.game.getMode() === 'single') {
+            const mode = this.game.getMode();
+            if (mode === 'single') {
                 if (winner === 1) {
                     message = '恭喜你战胜了AI！';
                 } else {
                     message = 'AI获胜，再接再厉！';
                 }
-            } else if (this.game.getMode() === 'lan') {
+            } else if (mode === 'lan') {
                 const myColor = this.game.getMyColor();
                 if (winner === myColor) {
                     message = '恭喜你获得胜利！';
@@ -522,14 +619,7 @@ class UI {
     }
     
     handleResize() {
-        const container = document.querySelector('.board-wrapper');
-        const maxWidth = Math.min(container.offsetWidth - 40, 600);
-        
-        const cellSize = Math.floor(maxWidth / 15);
-        
-        if (Math.abs(this.board.cellSize - cellSize) > 2) {
-            this.board.resize(cellSize);
-        }
+        this.resizeBoard();
     }
 }
 
@@ -537,4 +627,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const board = new Board('gameBoard');
     const game = new Game(board);
     const ui = new UI(game);
+    
+    setTimeout(() => ui.resizeBoard(), 100);
 });

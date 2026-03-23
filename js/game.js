@@ -232,7 +232,7 @@ class Game {
     }
     
     undo() {
-        if (this.isGameOver || this.moveHistory.length === 0) return false;
+        if (this.moveHistory.length === 0) return false;
         
         if (this.mode === 'lan') {
             this.networkManager.send({ type: 'undo_request' });
